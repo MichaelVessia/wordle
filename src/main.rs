@@ -4,6 +4,7 @@ use std::{
     io::{BufRead, BufReader},
 };
 use text_io::read;
+use colored::*;
 
 
 const FILENAME: &str = "words.txt";
@@ -81,11 +82,11 @@ fn main() {
         print_guesses(&guesses);
 
         if guess.eq(&solution) {
-            println!("You win!");
+            println!("{}", "You Win!".green());
             return;
         }
     }
     if usize::from(guess_count) > MAX_GUESSES {
-        println!("You lose!");
+        println!("{}", "You Lose!".red());
     }
 }
