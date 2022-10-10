@@ -24,6 +24,17 @@ fn find_word() -> String {
         .expect("File had no lines")
 }
 
+fn print_guesses(guesses: &[String; 5]) -> () {
+    println!("===");
+    println!("Guesses:");
+    for val in guesses.iter() {
+        if !val.eq("") {
+            println!("{}", val);
+        }
+    }
+    println!("===");
+}
+
 
 fn main() {
     let solution: String = find_word();
@@ -51,14 +62,7 @@ fn main() {
         guesses[index] = String::from(&guess);
         guess_count+= 1;
 
-        println!("===");
-        println!("Guesses:");
-        for val in guesses.iter() {
-            if !val.eq("") {
-                println!("{}", val);
-            }
-        }
-        println!("===");
+        print_guesses(&guesses);
 
         if guess.eq(&solution) {
             println!("You win!");
