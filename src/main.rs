@@ -7,7 +7,7 @@ use text_io::read;
 
 
 const FILENAME: &str = "words.txt";
-const MAX_GUESSES: u8 = 5;
+const MAX_GUESSES: usize = 5;
 
 /*
  * Get a random word from our file
@@ -24,7 +24,7 @@ fn find_word() -> String {
         .expect("File had no lines")
 }
 
-fn print_guesses(guesses: &[String; 5]) -> () {
+fn print_guesses(guesses: &[String; MAX_GUESSES]) -> () {
     println!("===");
     println!("Guesses:");
     for val in guesses.iter() {
@@ -33,6 +33,22 @@ fn print_guesses(guesses: &[String; 5]) -> () {
         }
     }
     println!("===");
+}
+
+fn is_valid_guess(guess: &String, guesses: &[String; MAX_GUESSES]) -> bool {
+    if guess.len() != 5 {
+        println!("Guess must be 5 characters long");
+        return false;
+    }
+
+    for val in guesses.iter() {
+        if val.eq(guess) {
+        println!("Guesses must be unique");
+            return false;
+        }
+    }
+
+    return true;
 }
 
 
@@ -50,14 +66,14 @@ fn main() {
     ];
 
 
-    while guess_count <= MAX_GUESSES {
+    while usize::from(guess_count) <= MAX_GUESSES {
         println!("Please input guess {}/{}.", guess_count, MAX_GUESSES);
         let guess: String = read!("{}\n");
 
-        if guess.len() != 5 {
-            println!("Guess must be a 5 character word");
+        if !is_valid_guess(&guess, &guesses) {
             continue;
         }
+
         let index: usize = (guess_count - 1) as usize;
         guesses[index] = String::from(&guess);
         guess_count+= 1;
@@ -69,7 +85,7 @@ fn main() {
             return;
         }
     }
-    if guess_count > MAX_GUESSES {
+    if usize::from(guess_count) > MAX_GUESSES {
         println!("You lose!");
     }
 }
