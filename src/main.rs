@@ -10,8 +10,8 @@ const FILENAME: &str = "words.txt";
 const MAX_GUESSES: u8 = 5;
 
 /*
-* Get a random word from our file
-*/
+ * Get a random word from our file
+ */
 fn find_word() -> String {
     let f = File::open(FILENAME)
         .unwrap_or_else(|e| panic!("(;_;) file not found: {}: {}", FILENAME, e));
@@ -30,20 +30,41 @@ fn main() {
     println!("{}", solution);
 
     let mut guess_count: u8 = 1;
+    let mut guesses: [String; 5] = [
+        String::new(),
+        String::new(),
+        String::new(),
+        String::new(),
+        String::new()
+    ];
+
 
     while guess_count <= MAX_GUESSES {
-        println!("Please input your guess.");
+        println!("Please input guess {}/{}.", guess_count, MAX_GUESSES);
         let guess: String = read!("{}\n");
 
-        println!("Guess {}/{}, you guessed: {}", guess_count, MAX_GUESSES, guess);
+        if guess.len() != 5 {
+            println!("Guess must be a 5 character word");
+            continue;
+        }
+        let index: usize = (guess_count - 1) as usize;
+        guesses[index] = String::from(&guess);
         guess_count+= 1;
+
+        println!("===");
+        println!("Guesses:");
+        for val in guesses.iter() {
+            if !val.eq("") {
+                println!("{}", val);
+            }
+        }
+        println!("===");
 
         if guess.eq(&solution) {
             println!("You win!");
-            break;
+            return;
         }
     }
-
     if guess_count > MAX_GUESSES {
         println!("You lose!");
     }
