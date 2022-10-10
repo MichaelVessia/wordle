@@ -13,8 +13,7 @@ const MAX_GUESSES: usize = 5;
 /*
  * Get a random word from our file
  */
-fn find_word() -> String {
-    let f = File::open(FILENAME)
+fn find_word() -> String { let f = File::open(FILENAME)
         .unwrap_or_else(|e| panic!("(;_;) file not found: {}: {}", FILENAME, e));
     let f = BufReader::new(f);
 
@@ -52,6 +51,14 @@ fn is_valid_guess(guess: &String, guesses: &[String; MAX_GUESSES]) -> bool {
     return true;
 }
 
+fn is_solution(solution: &String, guess: &String) -> bool {
+    if guess.eq(&solution) {
+        println!("{}", "You Win!".green());
+        return true;
+    }
+    return false;
+}
+
 
 fn main() {
     let solution: String = find_word();
@@ -81,8 +88,7 @@ fn main() {
 
         print_guesses(&guesses);
 
-        if guess.eq(&solution) {
-            println!("{}", "You Win!".green());
+        if is_solution(&solution, &guess) {
             return;
         }
     }
