@@ -12,6 +12,14 @@ pub fn is_valid_word(word: &str) -> bool {
     return word.len() == WORD_LENGTH;
 }
 
+pub fn get_words(words: &str) -> Vec<String> {
+    words
+        .split('\n')
+        .map(sanitize_word)
+        .filter(|l| is_valid_word(l))
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
@@ -33,5 +41,13 @@ mod tests {
         assert_eq!(is_valid_word("WORLD"), true);
         assert_eq!(is_valid_word("WRLD"), false);
         assert_eq!(is_valid_word("WOORLD"), false);
+    }
+    #[test]
+    fn test_get_words() {
+        assert_eq!(get_words("HELLO\nWORLD"), ["HELLO", "WORLD"]);
+        assert_eq!(get_words("HELLO\n\nWORLD"), ["HELLO", "WORLD"]);
+        assert_eq!(get_words("HEY\nWORLD"), ["WORLD"]);
+        let empty_vec: Vec<String> = Vec::new();
+        assert_eq!(get_words("HEY\nYOU\nPIKACHU"), empty_vec);
     }
 }
