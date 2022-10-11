@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 
 use bracket_random::prelude::RandomNumberGenerator;
+use colored::*;
 
 const WORD_LENGTH: usize = 5;
 const ALL_WORDS: &str = include_str!("../words.txt");
@@ -24,11 +25,31 @@ impl GameState {
             guesses: Vec::new(),
         }
     }
+    fn display_guesses(&mut self) {
+        self.guesses.iter().enumerate().for_each(|(guess_number, guess)| {
+            print!("{}: ", guess_number+1);
+            guess.chars().enumerate().for_each(|(pos, c)| {
+                let display = if self.solution.chars().nth(pos).unwrap() == c {
+                    format!("{c}").bright_green()
+                } else if self.solution.chars().any(|wc| wc == c) {
+                    format!("{c}").bright_yellow()
+                } else {
+                    self.guessed_letters.insert(c);
+                    format!("{c}").red()
+                };
+                print!("{display}");
+            });
+            println!();
+        })
+    }
 }
 
 fn main() {
     let mut game = GameState::new();
+    game.guesses = Vec::from(["ABELS".to_string(), "HELLO".to_string()]);
+    game.display_guesses();
 }
+
 
 pub fn sanitize_word(word: &str) -> String {
     word.trim()
