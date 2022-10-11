@@ -52,16 +52,30 @@ fn is_valid_guess(guess: &String, guesses: &[String; MAX_GUESSES]) -> bool {
 }
 
 fn is_solution(solution: &String, guess: &String) -> bool {
-    if guess.eq(&solution) {
+    if guess.eq(solution) {
         println!("{}", "You Win!".green());
         return true;
     }
     return false;
 }
 
+// Return colored version of char based on wordle rules
+fn eval_char(c: char, i: usize, solution: &String) -> String {
+    let mut result: ColoredString = c.to_string().red();
+    for (ix, cx) in solution.chars().enumerate() {
+        if ix == i && cx == c {
+            result = c.to_string().green();
+            break;
+        } else if cx == c {
+            result = c.to_string().yellow();
+        }
+    }
+    return result.to_string();
+}
+
 
 fn main() {
-    let solution: String = find_word();
+    let solution: String = "swath".to_string();
     println!("{}", solution);
 
     let mut guess_count: u8 = 1;
@@ -82,10 +96,10 @@ fn main() {
             continue;
         }
 
+        let result = guess.chars().enumerate().map(|(i, c)| eval_char(c, i, &solution)).collect::<String>();
         let index: usize = (guess_count - 1) as usize;
-        guesses[index] = String::from(&guess);
+        guesses[index] = String::from(&result);
         guess_count+= 1;
-
         print_guesses(&guesses);
 
         if is_solution(&solution, &guess) {
