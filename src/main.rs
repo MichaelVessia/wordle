@@ -1,4 +1,34 @@
+use std::collections::HashSet;
+
+use bracket_random::prelude::RandomNumberGenerator;
+
 const WORD_LENGTH: usize = 5;
+const ALL_WORDS: &str = include_str!("../words.txt");
+
+struct GameState {
+    all_words: Vec<String>,
+    solution: String,
+    guessed_letters: HashSet<char>,
+    guesses: Vec<String>
+}
+
+impl GameState {
+    fn new() -> Self {
+        let mut rng = RandomNumberGenerator::new();
+        let all_words = get_words(ALL_WORDS);
+        let solution = rng.random_slice_entry(&all_words).unwrap().clone();
+        Self {
+            all_words,
+            solution,
+            guessed_letters: HashSet::new(),
+            guesses: Vec::new(),
+        }
+    }
+}
+
+fn main() {
+    let mut game = GameState::new();
+}
 
 pub fn sanitize_word(word: &str) -> String {
     word.trim()
