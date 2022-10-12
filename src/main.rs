@@ -4,13 +4,14 @@ use bracket_random::prelude::RandomNumberGenerator;
 use colored::*;
 
 const WORD_LENGTH: usize = 5;
+const MAX_TRIES: usize = 6;
 const ALL_WORDS: &str = include_str!("../words.txt");
 
 struct GameState {
     all_words: Vec<String>,
     solution: String,
     guessed_letters: HashSet<char>,
-    guesses: Vec<String>
+    guesses: Vec<String>,
 }
 
 impl GameState {
@@ -26,30 +27,83 @@ impl GameState {
         }
     }
     fn display_guesses(&mut self) {
-        self.guesses.iter().enumerate().for_each(|(guess_number, guess)| {
-            print!("{}: ", guess_number+1);
-            guess.chars().enumerate().for_each(|(pos, c)| {
-                let display = if self.solution.chars().nth(pos).unwrap() == c {
-                    format!("{c}").bright_green()
-                } else if self.solution.chars().any(|wc| wc == c) {
-                    format!("{c}").bright_yellow()
-                } else {
-                    self.guessed_letters.insert(c);
-                    format!("{c}").red()
-                };
-                print!("{display}");
-            });
+        self.guesses
+            .iter()
+            .enumerate()
+            .for_each(|(guess_number, guess)| {
+                print!("{}: ", guess_number + 1);
+                guess.chars().enumerate().for_each(|(pos, c)| {
+                    let display = if self.solution.chars().nth(pos).unwrap() == c {
+                        format!("{c}").bright_green()
+                    } else if self.solution.chars().any(|wc| wc == c) {
+                        format!("{c}").bright_yellow()
+                    } else {
+                        self.guessed_letters.insert(c);
+                        format!("{c}").red()
+                    };
+                    print!("{display}");
+                });
+                println!();
+            })
+    }
+
+    fn display_invalid_letters(&self) {
+        if !self.guessed_letters.is_empty() {
+            print!("Letters not in the word: ");
+            self.guessed_letters
+                .iter()
+                .for_each(|letter| print!("{letter} "));
             println!();
-        })
+        }
+    }
+
+    fn ask_for_guess(&mut self) -> String {
+        println!(
+            "{}",
+            format!(
+                "Enter your word guess ({} letters) and press ENTER",
+                WORD_LENGTH
+            )
+            .cyan()
+        );
+        self.display_invalid_letters();
+        let mut guess = String::new();
+        let mut valid_guess = false;
+        while !valid_guess {
+            guess = String::new();
+            std::io::stdin().read_line(&mut guess).unwrap();
+            guess = sanitize_word(&guess);
+            if guess.len() != WORD_LENGTH {
+                println!(
+                    "{}",
+                    format!("Your guess must be {} letters.", WORD_LENGTH).red()
+                )
+            } else if !self.all_words.iter().any(|word| word == &guess) {
+                println!("{}", format!("{} isn't in the list", guess).red());
+            } else {
+                self.guesses.push(guess.clone());
+                valid_guess = true;
+            }
+        }
+        guess
+    }
+
+    fn is_game_over(&self, guess: &str) -> bool {
+        let n_tries = self.guesses.len();
+        if guess == self.solution {
+            println!("Correct! You guessed the word in {} tries.", n_tries);
+            true
+        } else if n_tries >= MAX_TRIES {
+            println!(
+                "{}",
+                format!("You ran out of tries! The word was {}", self.solution).bright_red()
+            );
+            true
+        } else {
+            false
+        }
     }
 }
-
-fn main() {
-    let mut game = GameState::new();
-    game.guesses = Vec::from(["ABELS".to_string(), "HELLO".to_string()]);
-    game.display_guesses();
-}
-
 
 pub fn sanitize_word(word: &str) -> String {
     word.trim()
@@ -69,6 +123,17 @@ pub fn get_words(words: &str) -> Vec<String> {
         .map(sanitize_word)
         .filter(|l| is_valid_word(l))
         .collect()
+}
+
+fn main() {
+    let mut game = GameState::new();
+    loop {
+        game.display_guesses();
+        let guess = game.ask_for_guess();
+        if game.is_game_over(&guess) {
+            break;
+        }
+    }
 }
 
 #[cfg(test)]
