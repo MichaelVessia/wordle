@@ -125,13 +125,13 @@ pub fn get_words(words: &str) -> Vec<String> {
         .collect()
 }
 
-pub fn color_guess(solution: &String, pos: usize, c: char) -> Option<ColoredString> {
+pub fn color_guess(solution: &String, pos: usize, c: char) -> fn() -> ColoredString {
     if solution.chars().nth(pos).unwrap() == c {
-        return Some(format!("{c}").bright_green());
+        return colored::Colorize::bright_green;
     } else if solution.chars().any(|wc| wc == c) {
-        return Some(format!("{c}").bright_yellow());
+        return colored::Colorize::bright_yellow;
     } else {
-        return None;
+        return colored::Colorize::red;
     };
 }
 
@@ -175,5 +175,8 @@ mod tests {
         assert_eq!(get_words("HEY\nWORLD"), ["WORLD"]);
         let empty_vec: Vec<String> = Vec::new();
         assert_eq!(get_words("HEY\nYOU\nPIKACHU"), empty_vec);
+    }
+    #[test]
+    fn test_color_guess() {
     }
 }
