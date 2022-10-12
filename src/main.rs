@@ -65,9 +65,9 @@ impl GameState {
             format!(
                 "Enter your word guess ({} letters) and press ENTER",
                 WORD_LENGTH
-            )
+                )
             .cyan()
-        );
+            );
         self.display_invalid_letters();
         let mut guess = String::new();
         let mut valid_guess = false;
@@ -79,7 +79,7 @@ impl GameState {
                 println!(
                     "{}",
                     format!("Your guess must be {} letters.", WORD_LENGTH).red()
-                )
+                    )
             } else if !self.all_words.iter().any(|word| word == &guess) {
                 println!("{}", format!("{} isn't in the list", guess).red());
             } else {
@@ -99,7 +99,7 @@ impl GameState {
             println!(
                 "{}",
                 format!("You ran out of tries! The word was {}", self.solution).bright_red()
-            );
+                );
             true
         } else {
             false
@@ -130,8 +130,20 @@ pub fn get_words(words: &str) -> Vec<String> {
 pub fn get_guess_color(solution: &String, pos: usize, c: char) -> &str {
     if solution.chars().nth(pos).unwrap() == c {
         return "green";
-    } else if solution.chars().any(|wc| wc == c) {
-        return "yellow";
+    } else if solution.chars().find(|&wc| {
+        c == wc
+    }).is_none() {
+        return "red";
+    } else {
+        let mut has_misplaced_char = false; 
+        solution.chars().enumerate().for_each(|(idx, wc)| {
+            if wc == c && idx != pos {
+                has_misplaced_char = true;
+            }
+        });
+        if has_misplaced_char {
+            return "yellow";
+        }
     }
     "red"
 }
