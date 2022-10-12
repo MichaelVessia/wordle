@@ -33,8 +33,9 @@ impl GameState {
             .enumerate()
             .for_each(|(guess_number, guess)| {
                 print!("{}: ", guess_number + 1);
+                let mut masked_solution = &self.solution;
                 guess.chars().enumerate().for_each(|(pos, c)| {
-                    let display: ColoredString = match get_guess_color(&self.solution, pos, c) {
+                    let display: ColoredString = match get_guess_color(&masked_solution, pos, c) {
                         "green" => format!("{c}").bright_green(),
                         "yellow" => format!("{c}").bright_yellow(),
                         "red" => {
@@ -44,6 +45,7 @@ impl GameState {
                         _ => format!("{c}").red()
                     };
                     print!("{display}");
+                    masked_solution = &masked_solution.replacen(&c.to_string(), "_", 1);
                 });
                 println!();
             })
@@ -191,5 +193,8 @@ mod tests {
     }
     #[test]
     fn test_get_guess_color() {
+        assert_eq!(get_guess_color(&"MONEY".to_string(), 0, 'M'), "green");
+        assert_eq!(get_guess_color(&"MONEY".to_string(), 0, 'Y'), "yellow");
+        assert_eq!(get_guess_color(&"MONEY".to_string(), 0, 'D'), "red");
     }
 }
