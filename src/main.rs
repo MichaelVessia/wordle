@@ -34,12 +34,14 @@ impl GameState {
             .for_each(|(guess_number, guess)| {
                 print!("{}: ", guess_number + 1);
                 guess.chars().enumerate().for_each(|(pos, c)| {
-                    let display: ColoredString = match color_guess(&self.solution, pos, c) {
-                        Some(colored_string) => colored_string,
-                        None => {
+                    let display: ColoredString = match get_guess_color(&self.solution, pos, c) {
+                        "green" => format!("{c}").bright_green(),
+                        "yellow" => format!("{c}").bright_yellow(),
+                        "red" => {
                             self.guessed_letters.insert(c);
                             format!("{c}").red()
-                        }
+                        },
+                        _ => format!("{c}").red()
                     };
                     print!("{display}");
                 });
@@ -125,14 +127,13 @@ pub fn get_words(words: &str) -> Vec<String> {
         .collect()
 }
 
-pub fn color_guess(solution: &String, pos: usize, c: char) -> fn() -> ColoredString {
+pub fn get_guess_color(solution: &String, pos: usize, c: char) -> &str {
     if solution.chars().nth(pos).unwrap() == c {
-        return colored::Colorize::bright_green;
+        return "green";
     } else if solution.chars().any(|wc| wc == c) {
-        return colored::Colorize::bright_yellow;
-    } else {
-        return colored::Colorize::red;
-    };
+        return "yellow";
+    }
+    "red"
 }
 
 fn main() {
@@ -177,6 +178,6 @@ mod tests {
         assert_eq!(get_words("HEY\nYOU\nPIKACHU"), empty_vec);
     }
     #[test]
-    fn test_color_guess() {
+    fn test_get_guess_color() {
     }
 }
