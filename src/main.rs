@@ -4,7 +4,7 @@ use bracket_random::prelude::RandomNumberGenerator;
 use colored::*;
 
 const WORD_LENGTH: usize = 5;
-const MAX_TRIES: usize = 6;
+const MAX_TRIES: usize = 5;
 const ALL_WORDS: &str = include_str!("../words.txt");
 
 struct GameState {
@@ -26,6 +26,7 @@ impl GameState {
             guesses: Vec::new(),
         }
     }
+
     fn display_guesses(&mut self) {
         self.guesses
             .iter()
@@ -33,13 +34,12 @@ impl GameState {
             .for_each(|(guess_number, guess)| {
                 print!("{}: ", guess_number + 1);
                 guess.chars().enumerate().for_each(|(pos, c)| {
-                    let display = if self.solution.chars().nth(pos).unwrap() == c {
-                        format!("{c}").bright_green()
-                    } else if self.solution.chars().any(|wc| wc == c) {
-                        format!("{c}").bright_yellow()
-                    } else {
-                        self.guessed_letters.insert(c);
-                        format!("{c}").red()
+                    let display: ColoredString = match color_guess(&self.solution, pos, c) {
+                        Some(colored_string) => colored_string,
+                        None => {
+                            self.guessed_letters.insert(c);
+                            format!("{c}").red()
+                        }
                     };
                     print!("{display}");
                 });
@@ -123,6 +123,16 @@ pub fn get_words(words: &str) -> Vec<String> {
         .map(sanitize_word)
         .filter(|l| is_valid_word(l))
         .collect()
+}
+
+pub fn color_guess(solution: &String, pos: usize, c: char) -> Option<ColoredString> {
+    if solution.chars().nth(pos).unwrap() == c {
+        return Some(format!("{c}").bright_green());
+    } else if solution.chars().any(|wc| wc == c) {
+        return Some(format!("{c}").bright_yellow());
+    } else {
+        return None;
+    };
 }
 
 fn main() {
